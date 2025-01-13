@@ -53,50 +53,46 @@ Kalender event
 //curl -X POST -H "Content-Type: application/json" -d '{"lektioner": [{"Id": "1010710","Starttid": "09:15:00","Sluttid": "10:45:00","Startdatum": "2025-01-07","Slutdatum": "2025-01-07","Aktivitet": "seminarium","Plats": "zoom","An
 app.post('/calendarEvents', async (req, res) => {
     try {
-        console.log('Received POST request to /calendarEvents with headers:', req.headers);   //lite debugging grajsor
-        console.log('Received POST request to /calendarEvents with body:', req.body);        //lite debugging grajsor
 
-        if (!req.body || !req.body.lektioner) {                                            //kollar om bodyn är tom eller om lektioner inte finns
+        const token = req.headers.authorization;                                                //hämtar token från headers
+        if (!req.body || !req.body.lesson) {                                                          //kollar om bodyn är tom eller om lektioner inte finns
             return res.status(400).json({ error: 'Missing or invalid request body' });
         }
 
-        const calendarEvents = req.body.lektioner.map(lektion => ({
-            calendar_event: {
-                context_code: "user_146040",                                  // "user_146040", eftersom vi inte får skapa events för kurser
-                title: lektion.Aktivitet,                                    // "Tutoring",
-                start_at: `${lektion.Startdatum}T${lektion.Starttid}:00Z`,  // "2025-01-07T10:15:00Z", måste vara i detta format
-                end_at: `${lektion.Slutdatum}T${lektion.Sluttid}:00Z`,     // "2025-01-07T11:45:00Z", måste vara i detta format
-                description: lektion.Möteslänk,                           // "https://ltu-se.zoom.us/j/8592343228",
-                location_name: lektion.Plats,                            // "Zoom",
-                location_address: lektion.Campus                        // "online föfan"
+        const calendarEvent = {
+            calendar_event:{
+                context_code: "user_146040",                                                    // "user_146040", eftersom vi inte får skapa events för kurser
+                title: req.body.lesson.Aktivitet,                                              // "Tutoring",`
+                start_at: `${req.body.lesson.Startdatum}T${req.body.lesson.Starttid}:00`,    // "2025-01-07T10:15:00Z", måste vara i detta format
+                end_at: `${req.body.lesson.Slutdatum}T${req.body.lesson.Sluttid}:00`,       // "2025-01-07T11:45:00Z", måste vara i detta format
+                description: req.body.lesson.Möteslänk,                                     // "https://ltu-se.zoom.us/j/8592343228",
+                location_name: req.body.lesson.Plats,                                      // "Zoom",
+                location_address: req.body.lesson.Campus                                  // "online föfan"
             }
-        }));
-
-        console.log('Constructed calendarEvents array:', calendarEvents);
-
-        const resultat = [];      //skapar en array för att hålla reda på resultatet av varje kalender event
-
-        for (const calendarEvent of calendarEvents) {   //för varje kalender event i arrayen calendarEvents
-            const response = await fetch(`${CANVAS_DOMAIN}/api/v1/calendar_events`, {     //skicka en post request till canvas
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${API_TOKEN}`,
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify(calendarEvent),
-            });
-            if (!response.ok) {    //om det inte gick att skicka requesten
-                console.log(`Error sending calendar event (${calendarEvent.calendar_event.title}): ${response.status} ${response.statusText}`);
-                resultat.push({ error: `Error sending event: ${calendarEvent.calendar_event.title}` });
-                continue;
-            }
-            const data = await response.json();
-            resultat.push(data);  //lägg till resultatet i resultat arrayen
         }
-        const kalenderIDList = getNoneFailedResults(resultat);  //skapa en const som innehåller alla kalender event som inte failade, använder sig av funktionen getNoneFailedResults
-        writeToFile(kalenderIDList);                                  //skriv till en fil för att spara alla kalender event ID's så det blir enkelt att deleta dem sen
-        res.json(resultat);                                          //skicka tillbaka resultatet
+
+
+        console.log('Constructed calendarEvents array:', calendarEvent);   //debugging
+
+
+        const response = await fetch(`${CANVAS_DOMAIN}/api/v1/calendar_events`, {     //skicka en post request till canvas
+            method: 'POST',
+            headers: {
+                'Authorization': `${token}`,
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(calendarEvent),
+        });
+        if (!response.ok) {    //om det inte gick att skicka requesten
+            console.log(`Error sending calendar event (${calendarEvent.calendar_event.title}): ${response.status} ${response.statusText}`);
+        }
+        const data = await response.json();
+        if (!data.error) {   //om det blev ett error spara inte kalender event ID
+            writeToFile([data.id]);  //skriv till filen
+        }
+
+        res.json(response);                                          //skicka tillbaka resultatet
     } catch (error) {
         console.error('Error:', error.message);
         res.status(500).json({ error: 'Failed to create calendar events' });

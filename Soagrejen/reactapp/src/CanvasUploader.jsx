@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 
-function CanvasUploader({ schedule }) {
+function CanvasUploader({ schedule , appendSchedule}) {
     const [token, setToken] = useState('');
     const [message, setMessage] = useState('');
+
 
     const uploadToCanvas = async () => {
         if (!schedule || schedule.length === 0) {
@@ -12,21 +13,15 @@ function CanvasUploader({ schedule }) {
 
         try {
             for (const lesson of schedule) {
-                const response = await fetch('/calendarEvent', {
+                const response = await fetch('/calendarEvents', {
                     method: 'POST',
                     headers: {
-                        'Authorization': `Bearer ${token}`,
+                        'Authorization': `Bearer ${token}`, //
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({
-                        context_code: "course_123", // Replace with actual context
-                        title: lesson.Aktivitet,
-                        start_at: `${lesson.Startdatum}T${lesson.Starttid}`,
-                        end_at: `${lesson.Slutdatum}T${lesson.Sluttid}`,
-                        description: `Location: ${lesson.Plats}\nInstructor: ${lesson.Anställd}\nLink: ${lesson.Möteslänk}`,
-                    }),
+                    body: JSON.stringify({ lesson }),
                 });
-
+                console.log(JSON.stringify({ lesson, token }));
                 if (!response.ok) throw new Error('Failed to upload a lesson.');
             }
             setMessage('All lessons uploaded successfully!');

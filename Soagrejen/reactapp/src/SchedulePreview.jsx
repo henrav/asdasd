@@ -1,8 +1,19 @@
-import React from 'react';
 
-function SchedulePreview({ schedule }) {
+import React, { useEffect, useState } from "react";
+
+function SchedulePreview({ schedule, changeAktivity, changeLocation }) {
     if (!schedule || schedule.length === 0) {
         return <p>No lessons to display.</p>;
+    }
+
+    const changeAktivitet = (ID) => (event) => {
+        const newAktivitet = event.target.value;
+        changeAktivity(ID, newAktivitet);
+    }
+
+    const changePlats = (ID) => (event) => {
+        const newLocation = event.target.value;
+        changeLocation(ID, newLocation);
     }
 
     return (
@@ -25,10 +36,14 @@ function SchedulePreview({ schedule }) {
                     {schedule.map((lesson, index) => (
                         <tr key={index}>
                             <td>{lesson.Id}</td>
-                            <td>{lesson.Aktivitet}</td>
+                            <td>
+                                <input type="text" value={lesson.Aktivitet} onChange={changeAktivitet(lesson.Id)}/>
+                            </td>
                             <td>{`${lesson.Startdatum} ${lesson.Starttid}`}</td>
                             <td>{`${lesson.Slutdatum} ${lesson.Sluttid}`}</td>
-                            <td>{lesson.Plats}</td>
+                            <td>
+                                <input type="text" value={lesson.Plats} onChange={changePlats(lesson.Id)}/>
+                            </td>
                             <td>{lesson.Anställd}</td>
                             <td>
                                 {lesson.Möteslänk.startsWith("http") ? (
