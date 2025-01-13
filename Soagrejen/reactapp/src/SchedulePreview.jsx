@@ -1,20 +1,39 @@
+import React from 'react';
 
-import React, { useEffect, useState } from "react";
-
-function SchedulePreview({ schedule, changeAktivity, changeLocation }) {
+function SchedulePreview({ schedule, changeLocation, changeActivity, changeEmployee, changeCourse, changeStart, changeEnd }) {
     if (!schedule || schedule.length === 0) {
         return <p>No lessons to display.</p>;
     }
 
-    const changeAktivitet = (ID) => (event) => {
-        const newAktivitet = event.target.value;
-        changeAktivity(ID, newAktivitet);
-    }
-
-    const changePlats = (ID) => (event) => {
+    const editLocation = (ID) => (event) => {
         const newLocation = event.target.value;
         changeLocation(ID, newLocation);
-    }
+    };
+
+    const editActivity = (ID) => (event) => {
+        const newActivity = event.target.value;
+        changeActivity(ID, newActivity);
+    };
+
+    const editEmployee = (ID) => (event) => {
+        const newEmployee = event.target.value;
+        changeEmployee(ID, newEmployee);
+    };
+
+    const editCourse = (ID) => (event) => {
+        const newCourse = event.target.value;
+        changeCourse(ID, newCourse);
+    };
+
+    const editStart = (ID, field) => (event) => {
+        const newValue = event.target.value;
+        changeStart(ID, field, newValue);
+    };
+
+    const editEnd = (ID, field) => (event) => {
+        const newValue = event.target.value;
+        changeEnd(ID, field, newValue);
+    };
 
     return (
         <div>
@@ -37,14 +56,50 @@ function SchedulePreview({ schedule, changeAktivity, changeLocation }) {
                         <tr key={index}>
                             <td>{lesson.Id}</td>
                             <td>
-                                <input type="text" value={lesson.Aktivitet} onChange={changeAktivitet(lesson.Id)}/>
+                                <input
+                                    type="text"
+                                    value={lesson.Aktivitet}
+                                    onChange={editActivity(lesson.Id)}
+                                />
                             </td>
-                            <td>{`${lesson.Startdatum} ${lesson.Starttid}`}</td>
-                            <td>{`${lesson.Slutdatum} ${lesson.Sluttid}`}</td>
                             <td>
-                                <input type="text" value={lesson.Plats} onChange={changePlats(lesson.Id)}/>
+                                <input
+                                    type="date"
+                                    value={lesson.Startdatum}
+                                    onChange={editStart(lesson.Id, "Startdatum")}
+                                />
+                                <input
+                                    type="time"
+                                    value={lesson.Starttid}
+                                    onChange={editStart(lesson.Id, "Starttid")}
+                                />
                             </td>
-                            <td>{lesson.Anställd}</td>
+                            <td>
+                                <input
+                                    type="date"
+                                    value={lesson.Slutdatum}
+                                    onChange={editEnd(lesson.Id, "Slutdatum")}
+                                />
+                                <input
+                                    type="time"
+                                    value={lesson.Sluttid}
+                                    onChange={editEnd(lesson.Id, "Sluttid")}
+                                />
+                            </td>
+                            <td>
+                                <input
+                                    type="text"
+                                    value={lesson.Plats}
+                                    onChange={editLocation(lesson.Id)}
+                                />
+                            </td>
+                            <td>
+                                <input
+                                    type="text"
+                                    value={lesson.Anställd}
+                                    onChange={editEmployee(lesson.Id)}
+                                />
+                            </td>
                             <td>
                                 {lesson.Möteslänk.startsWith("http") ? (
                                     <a href={lesson.Möteslänk} target="_blank" rel="noopener noreferrer">
@@ -54,7 +109,13 @@ function SchedulePreview({ schedule, changeAktivity, changeLocation }) {
                                     "No Link"
                                 )}
                             </td>
-                            <td>{lesson.KurskodNamn}</td>
+                            <td>
+                                <input
+                                    type="text"
+                                    value={lesson.KurskodNamn}
+                                    onChange={editCourse(lesson.Id)}
+                                />
+                            </td>
                         </tr>
                     ))}
                 </tbody>
