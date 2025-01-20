@@ -12,13 +12,13 @@ function TimeEditFetcher({ onFetchComplete }) {
         }
 
         try {
-            setError(null); // Clear previous errors
+            setError(null);
             const response = await fetch(url);
             if (!response.ok) throw new Error('Failed to fetch data. Please check the URL.');
 
             const data = await response.json();
-            const lessons = parseLessons(data); // Parse lessons from fetched data
-            onFetchComplete(lessons); // Pass lessons to parent component
+            const lessons = parseLessons(data);
+            onFetchComplete(lessons); //
         } catch (err) {
             setError(err.message);
         }

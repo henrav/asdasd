@@ -2,7 +2,7 @@ const parseLessons = (timeEditData) => {
     if (!timeEditData || !timeEditData.reservations) return [];
 
     return timeEditData.reservations
-        .filter((res) => res.columns[0] && res.columns[1]) // Ensure valid activity and title
+        .filter((res) => res.columns[0] && res.columns[1])
         .map((res) => ({
             Id: res.id,
             Starttid: res.starttime,

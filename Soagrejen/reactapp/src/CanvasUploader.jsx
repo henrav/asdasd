@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-function CanvasUploader({ schedule , appendSchedule}) {
+function CanvasUploader({ schedule }) {
     const [token, setToken] = useState('');
     const [message, setMessage] = useState('');
 

@@ -64,8 +64,7 @@ function App() {
             </header>
             <main>
                 <TimeEditFetcher onFetchComplete={(data) => setSchedule(data)} />
-                {schedule && (
-                    <SchedulePreview
+                <SchedulePreview
                         schedule={schedule}
                         changeLocation={changeLocation}
                         changeActivity={changeActivity}
@@ -73,8 +72,7 @@ function App() {
                         changeCourse={changeCourse}
                         changeStart={changeStart}
                         changeEnd={changeEnd}
-                    />
-                )}
+                />
                 {schedule && <CanvasUploader schedule={schedule} />}
             </main>
         </div>
